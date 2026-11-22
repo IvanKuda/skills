@@ -384,6 +384,70 @@ const MyStruct = @Struct(
 
 ---
 
+### 10. Where the Allocator Goes in Managed Containers
+
+Managed containers split into **two opposite conventions**. Do not generalize from one to the other.
+The per-method allocator arrived in 0.16 (see `zig-0-16`), so it is a baseline for 0.17 work, not a
+0.16 to 0.17 migration step — but it is the most common thing older training data gets wrong.
+
+| Container | Stored allocator? | Allocation methods | `deinit` |
+|---|---|---|---|
+| `std.ArrayList(T)`, `std.ArrayList(u8)` | No | allocator is the **first argument**: `append`, `appendSlice`, `addOne`, `insert`, `toOwnedSlice`, `ensureTotalCapacity` | `list.deinit(allocator)` |
+| `std.AutoHashMap`, `std.StringHashMap`, `std.HashMap` | Yes, from `init` | **no** allocator: `put`, `get`, `remove` | `map.deinit()` |
+| `std.heap.ArenaAllocator` | Yes, from `init` | n/a | `arena_state.deinit()` (returns freed bytes) |
+
+Start an `ArrayList` with the `empty` decl literal or `initCapacity`; the `init(allocator)` form was
+removed in 0.16, so `std.ArrayList(u32).init(a)` fails with `has no member named 'init'`.
+`initBuffer(slice)` takes external memory and makes every allocator-taking method illegal.
+`std.String` is not available in 0.17 — use `std.ArrayList(u8)`.
+
+```zig
+const std = @import("std");
+const testing = std.testing;
+
+test "ArrayList passes the allocator to every method" {
+    var gpa: std.heap.SafeAllocator = .init(std.heap.page_allocator, .{});
+    const a = gpa.allocator();
+
+    var list: std.ArrayList(u32) = .empty;
+    defer list.deinit(a);
+
+    try list.append(a, 1);
+    try list.appendSlice(a, &.{ 2, 3 });
+    const extra = try list.addOne(a);
+    extra.* = 4;
+    try testing.expectEqual(@as(usize, 4), list.items.len);
+
+    const owned = try list.toOwnedSlice(a);
+    defer a.free(owned);
+}
+
+test "HashMap stores the allocator from init" {
+    var gpa: std.heap.SafeAllocator = .init(std.heap.page_allocator, .{});
+    const a = gpa.allocator();
+
+    var map = std.StringHashMap(u32).init(a);
+    defer map.deinit();
+    try map.put("k", 1);
+    try testing.expectEqual(@as(?u32, 1), map.get("k"));
+}
+```
+
+Compiler messages that identify the mix-up:
+
+| Message | Cause | Fix |
+|---|---|---|
+| `member function expected 2 argument(s), found 1` on `list.append(x)` | allocator omitted | `list.append(a, x)` |
+| `member function expected 1 argument(s), found 0` on `list.deinit()` | allocator omitted | `list.deinit(a)` |
+| `member function expected 2 argument(s), found 3` on `map.put(a, k, v)` | allocator passed to a stored-allocator map | `map.put(k, v)` |
+| `member function expected 0 argument(s), found 1` on `map.deinit(a)` | allocator passed | `map.deinit()` |
+| `struct 'array_list.Aligned(T,null)' has no member named 'init'` | `init(allocator)` removed in 0.16 | `= .empty` or `initCapacity(a, n)` |
+
+Unmanaged variants (`std.ArrayListUnmanaged`, `std.StringHashMapUnmanaged`) always take the
+allocator per method: `list.append(a, x)`, `map.put(a, k, v)`.
+
+---
+
 ## Build System & Toolchain
 
 ### 1. Maker Process Separated from Configurer Process
@@ -460,8 +524,6 @@ This still links the library by name; it only prevents Zig from invoking
   ```zig
   const dep = try b.dependencyLazy("my_dep", .{});
   ```
-
----
 
 ## Common Idioms in Zig 0.17.1
 
