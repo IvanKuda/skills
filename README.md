@@ -13,32 +13,54 @@ Version-specific Zig skills for AI tools. These skills help assistants generate 
 
 ## Install
 
-### 1. Via `npx skills`
+### 1. Via the `skills` CLI
 
 ```bash
 # Interactive selection (choose which skills and agents to install)
-npx skills add zigcc/skills
+npx skills add IvanKuda/skills
 
-# Or install a specific version directly
-npx skills add zigcc/skills --skill zig-0-17
+# Or install one skill for one agent
+npx skills add IvanKuda/skills --skill zig-0-17 -a codex
 ```
+
+Name the owner whose skills you actually want. `IvanKuda/skills` installs this fork
+(Zig 0.17.1, corrected API notes, Koda compatibility); `zigcc/skills` installs upstream,
+which is still pinned to 0.17.0 and does not contain these changes.
+
+The CLI writes into the directory belonging to the agent you select. **Koda is not a
+selectable agent name** — `-a koda` is rejected with `SKILLS_INVALID_AGENTS` — but Koda reads
+the shared `.agents/skills` locations, so an agent that installs there works for it:
+
+```bash
+npx skills add IvanKuda/skills -a codex        # project: .agents/skills/
+npx skills add IvanKuda/skills -a codex -g     # global:  ~/.agents/skills/
+```
+
+Do not use `-a kode` as a substitute: that is the unrelated Kode agent (`.kode/skills`),
+which Koda does not read.
 
 ### 2. Manual Copy
 
 Copy the target skill directory to your AI tool's skill directory:
 
 ```bash
+```bash
 # OpenCode (project local)
-mkdir -p .opencode/skill && cp -r zig-0-17 .opencode/skill/
+mkdir -p .opencode/skills && cp -r zig-0-17 .opencode/skills/
 
 # OpenCode (global)
-mkdir -p ~/.config/opencode/skill && cp -r zig-0-17 ~/.config/opencode/skill/
+mkdir -p ~/.config/opencode/skills && cp -r zig-0-17 ~/.config/opencode/skills/
 
 # Claude Code
 mkdir -p .claude/skills && cp -r zig-0-17 .claude/skills/
 
-# Koda (global)
+# Koda (global; also read from project-local .koda/skills and .agents/skills)
 mkdir -p ~/.koda/skills && cp -r zig-0-17 zig-tiger-style ~/.koda/skills/
+```
+
+`.agents/skills` is read by OpenCode, Claude Code, Koda and Codex alike, so a single copy there
+serves all four. Note the plural: `.opencode/skill` (singular) is not a location OpenCode scans.
+
 ```
 
 If the skills are kept in a local checkout, refresh the installed copies after every edit:
@@ -88,9 +110,9 @@ Pin your project to a specific Zig version in `CLAUDE.md` or `AGENTS.md` so the 
 ```markdown
 # Zig Guidelines
 
-- For Zig 0.17.x, follow `.claude/skills/zig-0-17/SKILL.md` (or `.opencode/skill/zig-0-17/SKILL.md`)
-- For Zig 0.16.0, follow `.claude/skills/zig-0-16/SKILL.md` (or `.opencode/skill/zig-0-16/SKILL.md`)
-- For Zig 0.15.x, follow `.claude/skills/zig-0-15/SKILL.md` (or `.opencode/skill/zig-0-15/SKILL.md`)
+- For Zig 0.17.x, follow `.claude/skills/zig-0-17/SKILL.md` (or `.opencode/skills/zig-0-17/SKILL.md`)
+- For Zig 0.16.0, follow `.claude/skills/zig-0-16/SKILL.md` (or `.opencode/skills/zig-0-16/SKILL.md`)
+- For Zig 0.15.x, follow `.claude/skills/zig-0-15/SKILL.md` (or `.opencode/skills/zig-0-15/SKILL.md`)
 ```
 
 ### Direct Invocation

@@ -53,28 +53,28 @@ OpenCode searches for skills in these locations:
 
 | Location | Path | Scope |
 |----------|------|-------|
-| Project-local | `.opencode/skill/<name>/SKILL.md` | Current project only |
-| Global | `~/.config/opencode/skill/<name>/SKILL.md` | All projects |
+| Project-local | `.opencode/skills/<name>/SKILL.md` | Current project only |
+| Global | `~/.config/opencode/skills/<name>/SKILL.md` | All projects |
 | Claude-compatible (project) | `.claude/skills/<name>/SKILL.md` | Current project only |
 | Claude-compatible (global) | `~/.claude/skills/<name>/SKILL.md` | All projects |
 
 **Method 1: Project-local Installation (Recommended)**
 
 ```bash
-# Copy skill to project's .opencode/skill directory
-mkdir -p .opencode/skill
-cp -r zig-0-15 .opencode/skill/
+# Copy skill to project's .opencode/skills directory
+mkdir -p .opencode/skills
+cp -r zig-0-15 .opencode/skills/
 
 # The skill name must match the directory name
-# Result: .opencode/skill/zig-0-15/SKILL.md
+# Result: .opencode/skills/zig-0-15/SKILL.md
 ```
 
 **Method 2: Global Installation**
 
 ```bash
 # Copy skill to user config directory (available in all projects)
-mkdir -p ~/.config/opencode/skill
-cp -r zig-0-15 ~/.config/opencode/skill/
+mkdir -p ~/.config/opencode/skills
+cp -r zig-0-15 ~/.config/opencode/skills/
 ```
 
 **Method 3: Claude Code Compatible Installation**
@@ -127,8 +127,8 @@ Copy the contents of `SKILL.md` into your AI tool's context or knowledge base.
 ```bash
 # Clone and install to OpenCode skill directory
 git clone https://github.com/user/zig-0-15-skill.git
-mkdir -p .opencode/skill
-cp -r zig-0-15-skill/zig-0-15 .opencode/skill/
+mkdir -p .opencode/skills
+cp -r zig-0-15-skill/zig-0-15 .opencode/skills/
 ```
 
 ## Key API Changes Covered
