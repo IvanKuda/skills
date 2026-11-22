@@ -519,7 +519,7 @@ test "data processing test" {
 |---|---|---|
 | `error: cannot @bitCast from 'extern struct'` | `@bitCast` disallows `extern struct`/`extern union` | Use `@ptrCast(&val).*` or use an `extern union` |
 | `error: expected 5 arguments, found 7` on `@Struct` | `@Struct` parameter count reduced in SoA update | Group defaults/alignments/comptime into `field_attrs` slice |
-| `error: no member named 'getLastOrNull' in 'ArrayList'` | Method renamed | Use `list.last()` |
+| _no error_ for `list.getLastOrNull()` | Deprecated in 0.17 by doc comment only — still compiles | Use `list.last()` which returns `?T` |
 | _no error_ for `std.fmt.allocPrint`, `std.heap.DebugAllocator`, `list.getLastOrNull()`, `@intFromEnum` | Deprecated in 0.17 by doc comment only — still compiles, no compiler warning | Prefer the 0.17 spelling deliberately; do not expect the compiler to flag these |
 | `error: expected type 'std.lang.Optimize', found 'std.builtin.OptimizeMode'` | `OptimizeMode` renamed and tags lowercased | Use `std.lang.Optimize.debug` / `.safe` / `.fast` / `.small` |
 | `error: no member named 'initEmpty' in 'std.bit_set'` | Initializer syntax updated | Use `std.bit_set.Integer.empty` or decl literal `.empty` |
