@@ -51,6 +51,34 @@ done
 
 Koda loads skills at session start, so restart the session (start a new conversation) after installing.
 
+## Verifying Examples
+
+Every pinned skill claims its examples compile. `scripts/check-skill-examples.sh` enforces that
+by extracting each ```zig block and building it with the local toolchain:
+
+```bash
+scripts/check-skill-examples.sh zig-0-17   # check one skill
+scripts/check-skill-examples.sh --all      # check skills pinned to the local Zig version
+ZIG_CMD=/path/to/zig-0.16/zig scripts/check-skill-examples.sh zig-0-16
+```
+
+Blocks that illustrate the pre-migration API (`// OLD`, `// avoid`, `❌ WRONG`), naming sketches
+and `build.zig` fragments are reported as skips, not failures — they are not compilable by design.
+A skill pinned to another Zig minor is skipped under `--all`, because its examples are only
+verifiable against the toolchain they document.
+
+## Preparing a New Zig Version
+
+`scripts/new-skill.sh` copies the newest skill and rewrites its version identifiers, marking
+every code block `TODO-VERIFY`. It copies structure only: no API content is invented.
+
+```bash
+scripts/new-skill.sh 0.18.0
+```
+
+Run it once the release exists and its notes are readable. Then read the release notes, resolve
+every `TODO-VERIFY`, run the checker, and add the row to the table above.
+
 ## Usage
 
 ### In Project Rules (Recommended)

@@ -49,7 +49,7 @@ Always check local docs or source before searching online.
 | `@cImport({...})` | `b.dependency("translate_c", .{})` + `Translator` | `@cImport` removed; C translator moved to package |
 | `std.heap.DebugAllocator` | `std.heap.SafeAllocator` | Thread-safe, non-reusing, leak & corruption detection |
 | `std.heap.StackFallbackAllocator(N)` | `std.heap.BufferFirstAllocator.init(buf, fallback)` | Explicit buffer argument instead of comptime size |
-| `std.fmt.allocPrint(arena, ...)` | `arena.print(...)` / `allocator.print(...)` | Moved into `std.mem.Allocator` |
+| `std.fmt.allocPrint(arena, ...)` | `arena.print(...)` / `allocator.print(...)` | `Allocator.print` added; `std.fmt.allocPrint` is deprecated but still compiles in 0.17 |
 | `list.getLastOrNull()` | `list.last()` | Returns `?T` |
 | `list.getLast()` | `list.last().?` | Non-null assert via `.?`; new `list.lastPtr()` returns `?*T` |
 | `std.zon.parse.fromSliceAlloc` | `std.zon.parse.fromSlice(T, .{ ... })` | Struct arguments; new `updateFromSlice` |
@@ -267,9 +267,10 @@ const allocator = bfa.allocator();
 // Allocations small enough will use stack_buf; spills fallback to gpa.
 ```
 
-### 3. `mem.Allocator.print` Replaces `std.fmt.allocPrint`
+### 3. `mem.Allocator.print` Preferred Over `std.fmt.allocPrint`
 
-`allocPrint` is now an instance method directly on `std.mem.Allocator`:
+`print` was added as an instance method on `std.mem.Allocator`. `std.fmt.allocPrint` still
+compiles in 0.17 (doc-comment deprecation only), so prefer `print` for new and edited code:
 
 ```zig
 // OLD (0.16)
@@ -519,7 +520,7 @@ test "data processing test" {
 | `error: cannot @bitCast from 'extern struct'` | `@bitCast` disallows `extern struct`/`extern union` | Use `@ptrCast(&val).*` or use an `extern union` |
 | `error: expected 5 arguments, found 7` on `@Struct` | `@Struct` parameter count reduced in SoA update | Group defaults/alignments/comptime into `field_attrs` slice |
 | `error: no member named 'getLastOrNull' in 'ArrayList'` | Method renamed | Use `list.last()` |
-| `error: no member named 'allocPrint' in 'std.fmt'` | Function moved to `mem.Allocator` | Call `allocator.print(...)` directly |
+| _no error_ for `std.fmt.allocPrint`, `std.heap.DebugAllocator`, `list.getLastOrNull()`, `@intFromEnum` | Deprecated in 0.17 by doc comment only — still compiles, no compiler warning | Prefer the 0.17 spelling deliberately; do not expect the compiler to flag these |
 | `error: expected type 'std.lang.Optimize', found 'std.builtin.OptimizeMode'` | `OptimizeMode` renamed and tags lowercased | Use `std.lang.Optimize.debug` / `.safe` / `.fast` / `.small` |
 | `error: no member named 'initEmpty' in 'std.bit_set'` | Initializer syntax updated | Use `std.bit_set.Integer.empty` or decl literal `.empty` |
 | `error: 'errdefer' cannot capture error` | `\|err\|` capture syntax removed | Wrap logic into a helper function and use `catch \|err\|` |
