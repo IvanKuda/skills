@@ -5,6 +5,7 @@ license: MIT
 compatibility:
   - opencode
   - claude-code
+  - koda
 metadata:
   version: "0.15.2"
   language: "zig"

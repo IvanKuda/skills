@@ -1,20 +1,23 @@
 ---
 name: zig-0-17
-description: Zig 0.17.0 API guidance and porting notes. Use this when writing or upgrading Zig code to the 0.17.0 stable release (@backingInt/@fromBackingInt, SafeAllocator, SoA type reflection, build system maker/configurer separation).
+description: Zig 0.17.1 API guidance and porting notes. Use this when writing or upgrading Zig code to the 0.17.1 stable release (@backingInt/@fromBackingInt, SafeAllocator, SoA type reflection, build system maker/configurer separation).
 license: MIT
 compatibility:
   - opencode
   - claude-code
+  - koda
 metadata:
-  version: "0.17.0"
+  version: "0.17.1"
   language: "zig"
   category: "programming-language"
 ---
 
-# Zig 0.17.0 Programming Guide
+# Zig 0.17.1 Programming Guide
 
-> **Version Scope**: Pinned to **Zig 0.17.0** (stable).
-> **Release Notes**: https://ziglang.org/download/0.17.0/release-notes.html
+> **Version Scope**: Pinned to **Zig 0.17.1** (stable).
+> **Release Notes**: https://ziglang.org/download/0.17.1/release-notes.html
+>
+> 0.17.1 is a bug-fix release on top of 0.17.0 (57+ fixes, no breaking API changes). The porting guidance below targets the 0.17 API introduced in 0.17.0 and applies unchanged to 0.17.1.
 
 Zig 0.17.0 advances language stability towards 1.0. Major highlights include replacing `@intFromEnum`/`@enumFromInt` with `@backingInt`/`@fromBackingInt`, moving type reflection (`std.lang.Type`) and container builtins to Struct-Of-Arrays (SoA) style, removing array multiplication syntax `**` in favor of `@splat`, replacing `DebugAllocator` with the thread-safe `SafeAllocator`, moving `fmt.allocPrint` into `mem.Allocator`, decoupling C translation to an external package, and separating the Build System into distinct Configurer and Maker processes with fine-grained cache poisoning tracking.
 
@@ -459,7 +462,7 @@ This still links the library by name; it only prevents Zig from invoking
 
 ---
 
-## Common Idioms in Zig 0.17.0
+## Common Idioms in Zig 0.17.1
 
 ### Standard Project Entrypoint (Juicy Main)
 
@@ -472,7 +475,7 @@ pub fn main(init: std.process.Init) !void {
     const arena = init.arena.allocator();
 
     // Print to stdout
-    try std.Io.File.stdout().writeStreamingAll(io, "Running on Zig 0.17.0!\n");
+    try std.Io.File.stdout().writeStreamingAll(io, "Running on Zig 0.17.1!\n");
 
     // Dynamic formatted string
     const greeting = try gpa.print("Hello, {s}!", .{"World"});

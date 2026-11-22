@@ -7,6 +7,10 @@ description: >
   trigger when the user asks how to structure Zig structs, handle errors, write safe loops, or
   design Zig APIs. Even if the user just says "write me some Zig" or pastes Zig code for review,
   consult this skill first.
+compatibility:
+  - opencode
+  - claude-code
+  - koda
 ---
 
 # TigerStyle: Zig Coding Guidelines
